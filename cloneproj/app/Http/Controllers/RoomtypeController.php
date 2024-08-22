@@ -16,7 +16,10 @@ class RoomtypeController extends Controller
     {
         //
         $data = RoomType::all();
-        return view('admin-pov.roomtype.roomtype', ['data' => $data]);
+        return view('admin-pov.roomtype.roomtype', [
+            'data' => $data,
+            'users' => RoomType::paginate(10)
+        ]);
     }
 
     /**
@@ -63,7 +66,6 @@ class RoomtypeController extends Controller
         $data = RoomType::find($id);
 
         return response([$data], 201);
-        // return redirect()->route('roomtype', [$data], 201);
     }
 
     /**
@@ -92,14 +94,14 @@ class RoomtypeController extends Controller
 
             DB::commit();
 
-            return response(['message' => 'Updated Success', $validated], 201);
+            return response(['message' => 'Updated Success', $data], 201);
         } catch (\Exception $e) {
             DB::rollBack();
             // return $e->getMessage();
             return response(['error' => 'Update unsuccessfully'], 404);
         }
 
-        return response([$data], 201);
+        // return response([$data], 201);
     }
 
     /**

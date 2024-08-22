@@ -1,14 +1,15 @@
 function createRoom() {
+    // add roomtypes
     Swal.fire({
         title: "Submit your info",
         html: `
             <form id="myForm" >
-            <input type="hidden" name="_token" value="{{ csrf_token() }}">
-            <label for="title">Title:</label><br>
-            <input type="text" id="title" name="title" class="swal2-input"><br><br>
+                <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                <label for="title">Title:</label><br>
+                <input type="text" id="title" name="title" class="swal2-input"><br><br>
 
-            <label for="detail">Detail:</label><br>
-            <input type="text" id="detail" name="detail" class="swal2-input"><br>
+                <label for="detail">Detail:</label><br>
+                <input type="text" id="detail" name="detail" class="swal2-input"><br>
             </form>
         `,
         showCancelButton: true,
@@ -41,9 +42,16 @@ function createRoom() {
                         showConfirmButton: false,
                         timer: 1500,
                     });
-                    let newRow = `<tr>
-                        <td>${response.data[0].title}</td>
-                        <td>${response.data[0].detail}</td>
+                    let newRow = `<tr data-room="${response.data[0].id}">
+                            <td class="title2">${response.data[0].title}</td>
+                            <td class="detail2">${response.data[0].detail}</td>
+                            <td>
+                                <button onclick="showModal(${response.data[0].id})" class="btn btn-info"><i class="fa-solid fa-eye"></i></button>
+
+                                <button onclick="editModal(${response.data[0].id})" class="btn btn-success edit-btn"><i class="fa-solid fa-edit"></i></button>
+
+                                <button onclick="deleteModal(${response.data[0].id})" class="btn btn-danger"><i class="fa-solid fa-trash"></i></button>
+                            </td>
                         </tr>`;
 
                     $("#datatablesSimple").append(newRow);
@@ -72,7 +80,6 @@ function showModal(id) {
             axios
                 .get("/admin/roomtype/" + id)
                 .then(function (response) {
-                    // handle success
                     // console.log(response);
                     $("#titles").val(response.data[0].title);
                     $("#details").val(response.data[0].detail);
@@ -87,7 +94,7 @@ function showModal(id) {
 
 function editModal(id) {
     Swal.fire({
-        title: "Edit your info",
+        title: "Update info",
         html: `
         <form id="myForm" >
             <input type="hidden" name="_token" value="{{ csrf_token() }}">
@@ -101,10 +108,10 @@ function editModal(id) {
         showCancelButton: true,
         confirmButtonText: "Submit",
         didOpen: () => {
+            // function to when open modal
             axios
                 .get("/admin/roomtype/" + id)
                 .then(function (response) {
-                    // handle success
                     // console.log(response);
                     $("#titles").val(response.data[0].title);
                     $("#details").val(response.data[0].detail);
@@ -135,7 +142,7 @@ function editModal(id) {
             axios
                 .put("/admin/roomtype/" + id + "/edit", formData)
                 .then(function (response) {
-                    console.log("Response data:", response.data[0]);
+                    // console.log("Response data:", response.data[0]);
                     // console.log(response);
                     Swal.fire({
                         title: "Update Success",
@@ -144,19 +151,23 @@ function editModal(id) {
                         showConfirmButton: false,
                         timer: 1500,
                     });
-                    const mappedIndex = id - 1;
-                    let updatedRow = document.querySelector(
-                        `#datatablesSimple tbody tr[data-index='${mappedIndex}']`
+
+                    let updatedRow = $(
+                        `#datatablesSimple tbody tr[data-room='${id}']`
                     );
-                    if (updatedRow) {
-                        updatedRow.innerHTML = `
-                            <td >${response.data[0].title}</td>
-                            <td >${response.data[0].detail}</td>
-                            ${updatedRow.innerHTML
-                                .split("</td>")
-                                .slice(2)
-                                .join("</td>")}
-                        `;
+
+                    if (updatedRow.length > 0) {
+                        let titleCell = updatedRow.find("td.title2");
+                        let detailCell = updatedRow.find("td.detail2");
+
+                        if (titleCell.length > 0) {
+                            titleCell.text(response.data[0].title);
+                        }
+                        if (detailCell.length > 0) {
+                            detailCell.text(response.data[0].detail);
+                        }
+                    } else {
+                        console.error("row not found", updatedRow);
                     }
                 })
                 .catch(function (error) {
@@ -181,25 +192,28 @@ function deleteModal(id) {
             axios
                 .delete("/admin/roomtype/delete=" + id)
                 .then(function (response) {
-                    console.log(response);
+                    // console.log(response);
 
-                    const mappedIndex = id - 1;
                     const rowToDelete = document.querySelector(
-                        `#datatablesSimple tbody tr[data-index='${mappedIndex}']`
+                        `#datatablesSimple tbody tr[data-room='${id}']`
                     );
 
                     if (rowToDelete) {
                         // console.log("Row to delete found");
-                        console.log("Row to delete found:", rowToDelete);
-                        // rowToDelete.parentNode.removeChild(rowToDelete); // Try this alternative approach
+                        // console.log("Row to delete found:", rowToDelete);
                         rowToDelete.remove();
 
                         Swal.fire({
-                            title: "Deleted!",
-                            text: "Data has been deleted.",
+                            title:
+                                response.data[0].title +
+                                " " +
+                                response.data[0].detail,
+                            text: response.data.message,
                             icon: "success",
+                            showConfirmButton: false,
+                            timer: 1500,
                         });
-                        console.log("Row deleted successfully");
+                        // console.log("Row deleted successfully");
                     } else {
                         console.log("Row to delete not found");
                     }

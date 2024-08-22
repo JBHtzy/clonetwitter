@@ -69,7 +69,7 @@
         DataTable Example
     </div>
     <div class="card-body">
-        <table id="datatablesSimple">
+        <table id="datatablesSimple" class="table table-striped table-hover">
             <thead>
                 <tr>
                     <th>Name</th>
@@ -80,16 +80,6 @@
                     <th>Salary</th>
                 </tr>
             </thead>
-            <tfoot>
-                <tr>
-                    <th>Name</th>
-                    <th>Position</th>
-                    <th>Office</th>
-                    <th>Age</th>
-                    <th>Start date</th>
-                    <th>Salary</th>
-                </tr>
-            </tfoot>
             <tbody>
                 <tr>
                     <td>Tiger Nixon</td>
@@ -103,4 +93,8 @@
         </table>
     </div>
 </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
+<script src=" {{ asset('admin-css/demo/chart-area-demo.js') }}"></script>
+<script src=" {{ asset('admin-css/demo/chart-bar-demo.js') }}"></script>
 @endsection
